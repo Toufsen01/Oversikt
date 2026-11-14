@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studieoversikt</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --ink:#1b1f2a; --muted:#6b7385; --line:#e3e6ef; --track:#e9ecf4;
+  --accent:#4f7cff; --ok:#12a594; --danger:#d9483b;
+  --shadow:0 1px 2px rgba(20,25,40,.06),0 4px 14px rgba(20,25,40,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#12141a;--card:#1b1e27;--ink:#eceff6;--muted:#9099ad;--line:#2b3040;--track:#2a2f3d;--shadow:0 1px 2px rgba(0,0,0,.4)}
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+input[type=text],input[type=date]{font:inherit;color:inherit}
+
+/* sticky progress header */
+.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:880px;margin:0 auto;padding:14px 20px 12px}
+.top-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
+.top-title{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-pct{font-weight:800;font-size:20px;font-variant-numeric:tabular-nums}
+.bar{height:14px;border-radius:99px;background:var(--track);overflow:hidden;display:flex}
+.bar>span{display:block;height:100%;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.chips{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.chips b{color:var(--ink);font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+
+main{max-width:880px;margin:0 auto;padding:22px 20px 80px}
+h1{font-size:24px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 13px;font-size:14px;box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.on{border-color:var(--accent);color:var(--accent)}
+.link{background:none;border:0;color:var(--accent);padding:0;font-size:14px;text-decoration:none;display:inline-block;margin-bottom:12px}
+.link:hover{text-decoration:underline}
+
+/* overview grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:center;position:relative;text-align:left;width:100%}
+a.card{color:inherit;text-decoration:none;transition:transform .12s,border-color .12s}
+a.card:hover{transform:translateY(-2px);border-color:var(--c)}
+.ring{--p:0;--c:var(--accent);width:64px;height:64px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:conic-gradient(var(--c) calc(var(--p)*1%),var(--track) 0)}
+.ring i{font-style:normal;width:50px;height:50px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:800;font-size:14px}
+.card h3{margin:0 0 3px;font-size:16px;line-height:1.25}
+.meta{font-size:12.5px;color:var(--muted)}
+.card.add{justify-content:center;border-style:dashed;color:var(--muted);min-height:96px;font-size:15px;background:transparent;box-shadow:none}
+.card.add:hover{color:var(--accent);border-color:var(--accent)}
+.card.edit{flex-direction:column;align-items:stretch;gap:10px}
+.erow{display:flex;gap:8px;align-items:center}
+
+.txt{border:1px solid transparent;background:transparent;border-radius:8px;padding:6px 8px;width:100%;min-width:0}
+.txt:hover{border-color:var(--line)}
+.txt:focus{outline:none;border-color:var(--accent);background:var(--card)}
+.txt.big{font-size:24px;font-weight:700;padding:4px 8px;margin-left:-8px}
+.field{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 8px}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line);flex:none;padding:0}
+.x{background:none;border:0;color:var(--muted);border-radius:8px;padding:5px 8px;font-size:14px;flex:none}
+.x:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent)}
+.x.armed{color:#fff;background:var(--danger)}
+
+/* course page */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin:18px 0;overflow:hidden}
+.panel h2{font-size:16px;margin:0;padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:baseline}
+.panel h2 small{font-weight:500;color:var(--muted);font-size:13px}
+.cols{display:grid;grid-template-columns:84px 1fr 84px 38px;gap:6px;align-items:center;padding:0 12px 6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cols span:first-child,.cols span:nth-child(3){text-align:center}
+.row{display:grid;grid-template-columns:84px 1fr 84px 38px;gap:6px;align-items:center;padding:4px 12px;border-top:1px solid var(--line)}
+.row.ex{grid-template-columns:84px 1fr 38px}
+.row.done .txt{color:var(--muted)}
+.chk{display:grid;place-items:center}
+.chk input{width:22px;height:22px;accent-color:var(--c,var(--accent));cursor:pointer;margin:0}
+.addrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.addrow input{flex:1;border:1px dashed var(--line);background:transparent;border-radius:8px;padding:8px 10px;min-width:0}
+.addrow input:focus{outline:none;border-color:var(--accent);border-style:solid}
+.empty{padding:14px 16px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+.status{position:fixed;right:14px;bottom:12px;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px 10px;opacity:0;transition:opacity .2s}
+.status.show{opacity:1}
+@media (max-width:560px){
+  .cols,.row{grid-template-columns:62px 1fr 62px 34px}
+  .row.ex{grid-template-columns:62px 1fr 34px}
+  .cols span{font-size:10px}
+}
+.login{min-height:100vh;display:none;place-items:center;padding:20px}
+.login form{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:26px;width:100%;max-width:360px;display:grid;gap:12px}
+.login h1{font-size:22px;margin:0}
+.login p{margin:0;color:var(--muted);font-size:14px}
+.login input{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font:inherit;color:inherit;width:100%}
+.login input:focus{outline:none;border-color:var(--accent)}
+.login .err{color:var(--danger);font-size:13px;min-height:18px}
+</style>
+</head>
+<body>
+<div class="top" id="topwrap" style="display:none"><div class="top-in" id="top"></div></div>
+<main id="app" style="display:none"></main>
+<div class="login" id="login">
+  <form id="loginForm">
+    <h1>Studieoversikt</h1>
+    <p>Logg inn for å se fremgangen din.</p>
+    <input type="email" id="em" placeholder="E-post" autocomplete="username" required>
+    <input type="password" id="pw" placeholder="Passord" autocomplete="current-password" required>
+    <div class="err" id="err"></div>
+    <button class="btn primary" type="submit">Logg inn</button>
+  </form>
+</div>
+<div class="status" id="status"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getDatabase, ref as fbRef, set as fbSet, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBWZ3m4D5e5LiwndIFjYCG7o4kltad0WTQ",
+  authDomain: "eksamensoversikt.firebaseapp.com",
+  databaseURL: "https://eksamensoversikt-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "eksamensoversikt",
+  storageBucket: "eksamensoversikt.firebasestorage.app",
+  messagingSenderId: "897011022339",
+  appId: "1:897011022339:web:40f70e9a3099627a70ac36"
+};
+
+(function(){
+var COLORS=['#4f7cff','#12a594','#e5604d','#e0a526','#9b6bdf','#e0589a'];
+var uid=function(){return Math.random().toString(36).slice(2,8)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+
+function seed(){
+  return {courses:[{
+    id:uid(),name:'Tidsserieøkonometri (FIN3008)',color:COLORS[0],date:'',
+    topics:['Stasjonaritet og autokorrelasjon','AR-, MA- og ARMA-modeller','Box-Jenkins og modellvalg','Enhetsrøtter og Dickey-Fuller','Kointegrasjon og feilkorreksjon','VAR og impulsresponser','ARCH/GARCH','Prognoser og evaluering'].map(function(n){return {id:uid(),name:n,read:false,known:false}}),
+    exams:['Eksamensoppgave 1','Eksamensoppgave 2'].map(function(n){return {id:uid(),name:n,done:false}})
+  }]};
+}
+
+var state={courses:[]}, ref=null, armed=null, editMode=false, focusId=null;
+
+/* ---------- persistence ---------- */
+var dirty=false,saving=false,timer=null,hideT=null;
+function setStatus(t){var el=document.getElementById('status');el.textContent=t;el.classList.add('show');clearTimeout(hideT);hideT=setTimeout(function(){el.classList.remove('show')},1600)}
+function touch(){
+  dirty=true;
+  clearTimeout(timer);timer=setTimeout(flush,700);
+}
+async function flush(){
+  if(!dirty) return;
+  if(saving){timer=setTimeout(flush,300);return}
+  if(!ref){dirty=false;return}
+  saving=true;dirty=false;
+  try{await fbSet(ref,JSON.stringify(state.courses));setStatus('Lagret')}
+  catch(e){dirty=true;setStatus('Kunne ikke lagre')}
+  saving=false;
+}
+
+/* ---------- helpers ---------- */
+function stats(c){
+  var t=c.topics.length,r=c.topics.filter(function(x){return x.read}).length,k=c.topics.filter(function(x){return x.known}).length;
+  var e=c.exams.length,ed=c.exams.filter(function(x){return x.done}).length;
+  var total=2*t+e,done=r+k+ed;
+  return {t:t,r:r,k:k,e:e,ed:ed,total:total,done:done,pct:total?Math.round(100*done/total):0};
+}
+function overall(){
+  var a={t:0,r:0,k:0,e:0,ed:0,total:0,done:0};
+  state.courses.forEach(function(c){var s=stats(c);for(var k in a)a[k]+=s[k]});
+  a.pct=a.total?Math.round(100*a.done/a.total):0;return a;
+}
+function daysTo(d){if(!d)return null;var n=Math.ceil((new Date(d+'T00:00:00')-new Date())/864e5);return isNaN(n)?null:n}
+function daysTxt(d){var n=daysTo(d);if(n===null)return '';if(n<0)return 'Eksamen er over';if(n===0)return 'Eksamen i dag';if(n===1)return '1 dag til eksamen';return n+' dager til eksamen'}
+function route(){var h=location.hash.replace('#','');if(h.indexOf('emne-')===0){var id=h.slice(5);return state.courses.find(function(c){return c.id===id})||null}return null}
+function nextColor(c){var i=COLORS.indexOf(c);return COLORS[(i+1)%COLORS.length]}
+
+/* ---------- render ---------- */
+function renderTop(){
+  var c=route(),s=c?stats(c):overall(),col=c?c.color:'var(--accent)';
+  var title=c?c.name:'Samlet fremgang – alle emner';
+  document.getElementById('top').innerHTML=
+   '<div class="top-row"><div class="top-title">'+esc(title)+'</div><div class="top-pct" style="color:'+col+'">'+s.pct+'%</div></div>'+
+   '<div class="bar" role="progressbar" aria-valuenow="'+s.pct+'" aria-valuemin="0" aria-valuemax="100"><span style="width:'+s.pct+'%;background:'+col+'"></span></div>'+
+   '<div class="chips"><span><i class="dot" style="background:'+col+'"></i>Gjennomgått <b>'+s.r+'/'+s.t+'</b></span><span><i class="dot" style="background:'+col+';opacity:.6"></i>Kan det <b>'+s.k+'/'+s.t+'</b></span><span><i class="dot" style="background:'+col+';opacity:.35"></i>Eksamensoppgaver <b>'+s.ed+'/'+s.e+'</b></span></div>';
+}
+function render(){
+  renderTop();
+  var c=route(),app=document.getElementById('app');
+  app.innerHTML=c?courseView(c):overview();
+  if(focusId){var el=document.getElementById(focusId);if(el)el.focus();focusId=null}
+}
+function overview(){
+  var h='<div class="head"><div><h1>Emner</h1><p class="sub">Trykk på et emne for å se temaer og eksamensoppgaver.</p></div>'+
+    '<div class="erow"><button class="btn'+(editMode?' on':'')+'" data-act="toggleEdit">'+(editMode?'Ferdig':'Rediger emner')+'</button><button class="btn" data-act="logout">Logg ut</button></div></div><div class="grid">';
+  state.courses.forEach(function(c){
+    var s=stats(c),d=daysTxt(c.date);
+    if(editMode){
+      h+='<div class="card edit" style="--c:'+c.color+'"><div class="erow"><button class="swatch" style="background:'+c.color+'" data-act="color" data-c="'+c.id+'" title="Bytt farge"></button>'+
+        '<input class="txt" type="text" value="'+esc(c.name)+'" data-f="cname" data-c="'+c.id+'" aria-label="Emnenavn">'+
+        '<button class="x'+(armed===c.id?' armed':'')+'" data-act="delCourse" data-c="'+c.id+'">'+(armed===c.id?'Slett?':'✕')+'</button></div>'+
+        '<div class="erow"><span class="meta">Eksamen:</span><input class="field" type="date" value="'+esc(c.date)+'" data-f="cdate" data-c="'+c.id+'"></div></div>';
+    }else{
+      h+='<a class="card" href="#emne-'+c.id+'" style="--c:'+c.color+'"><div class="ring" style="--p:'+s.pct+';--c:'+c.color+'"><i>'+s.pct+'%</i></div>'+
+        '<div><h3>'+esc(c.name)+'</h3><div class="meta">'+s.t+' temaer · '+s.e+' oppgaver</div>'+(d?'<div class="meta">'+d+'</div>':'')+'</div></a>';
+    }
+  });
+  h+='<button class="card add" data-act="addCourse">+ Nytt emne</button></div>';
+  if(!state.courses.length) h+='<p class="sub" style="margin-top:18px">Ingen emner ennå. Legg til ditt første!</p>';
+  return h;
+}
+function courseView(c){
+  var s=stats(c),d=daysTxt(c.date),st='style="--c:'+c.color+'"';
+  var h='<a class="link" href="#oversikt">← Alle emner</a>'+
+   '<div class="head" '+st+'><input class="txt big" type="text" value="'+esc(c.name)+'" data-f="cname" data-c="'+c.id+'" aria-label="Emnenavn">'+
+   '<div class="erow"><span class="meta">'+esc(d)+'</span><input class="field" type="date" value="'+esc(c.date)+'" data-f="cdate" data-c="'+c.id+'" aria-label="Eksamensdato"></div></div>';
+  h+='<section class="panel" '+st+'><h2>Temaer <small>'+s.r+' gjennomgått · '+s.k+' kan</small></h2>'+
+     '<div class="cols"><span>Gjennomgått</span><span>Tema</span><span>Kan det</span><span></span></div>';
+  if(!c.topics.length) h+='<div class="empty">Ingen temaer ennå – legg til under.</div>';
+  c.topics.forEach(function(t){
+    h+='<div class="row'+(t.read&&t.known?' done':'')+'"><label class="chk"><input type="checkbox" data-f="read" data-c="'+c.id+'" data-i="'+t.id+'"'+(t.read?' checked':'')+' aria-label="Gjennomgått"></label>'+
+      '<input class="txt" type="text" value="'+esc(t.name)+'" data-f="tname" data-c="'+c.id+'" data-i="'+t.id+'" aria-label="Tema">'+
+      '<label class="chk"><input type="checkbox" data-f="known" data-c="'+c.id+'" data-i="'+t.id+'"'+(t.known?' checked':'')+' aria-label="Kan det"></label>'+
+      '<button class="x'+(armed===t.id?' armed':'')+'" data-act="delTopic" data-c="'+c.id+'" data-i="'+t.id+'" title="Slett">'+(armed===t.id?'?':'✕')+'</button></div>';
+  });
+  h+='<div class="addrow"><input type="text" id="newTopic" placeholder="Nytt tema … (Enter for å legge til)" data-f="newTopic" data-c="'+c.id+'"><button class="btn" data-act="addTopic" data-c="'+c.id+'">Legg til</button></div></section>';
+  h+='<section class="panel" '+st+'><h2>Eksamensoppgaver <small>'+s.ed+' av '+s.e+' løst</small></h2>';
+  if(!c.exams.length) h+='<div class="empty">Ingen eksamensoppgaver ennå – legg til under.</div>';
+  c.exams.forEach(function(x){
+    h+='<div class="row ex'+(x.done?' done':'')+'"><label class="chk"><input type="checkbox" data-f="exdone" data-c="'+c.id+'" data-i="'+x.id+'"'+(x.done?' checked':'')+' aria-label="Løst"></label>'+
+      '<input class="txt" type="text" value="'+esc(x.name)+'" data-f="exname" data-c="'+c.id+'" data-i="'+x.id+'" aria-label="Oppgave">'+
+      '<button class="x'+(armed===x.id?' armed':'')+'" data-act="delExam" data-c="'+c.id+'" data-i="'+x.id+'" title="Slett">'+(armed===x.id?'?':'✕')+'</button></div>';
+  });
+  h+='<div class="addrow"><input type="text" id="newExam" placeholder="Ny eksamensoppgave, f.eks. «Høst 2024» …" data-f="newExam" data-c="'+c.id+'"><button class="btn" data-act="addExam" data-c="'+c.id+'">Legg til</button></div></section>';
+  return h;
+}
+
+/* ---------- events ---------- */
+function course(id){return state.courses.find(function(c){return c.id===id})}
+var app=document.getElementById('app');
+
+app.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');
+  var wasArmed=armed;
+  if(!b){ if(armed){armed=null;render()} return; }
+  var act=b.dataset.act,c=b.dataset.c?course(b.dataset.c):null,i=b.dataset.i;
+  if(act!=='delCourse'&&act!=='delTopic'&&act!=='delExam') armed=null;
+  if(act==='logout'){signOut(auth);return}
+  if(act==='toggleEdit'){editMode=!editMode;render();return}
+  if(act==='addCourse'){var n={id:uid(),name:'Nytt emne',color:COLORS[state.courses.length%COLORS.length],date:'',topics:[],exams:[]};state.courses.push(n);editMode=true;touch();focusId=null;render();return}
+  if(act==='color'&&c){c.color=nextColor(c.color);touch();render();return}
+  if(act==='addTopic'&&c){addItem(c,'topics','newTopic');return}
+  if(act==='addExam'&&c){addItem(c,'exams','newExam');return}
+  if(act==='delCourse'||act==='delTopic'||act==='delExam'){
+    var key=act==='delCourse'?c.id:i;
+    if(wasArmed===key){
+      armed=null;
+      if(act==='delCourse') state.courses=state.courses.filter(function(x){return x.id!==c.id});
+      else if(act==='delTopic') c.topics=c.topics.filter(function(x){return x.id!==i});
+      else c.exams=c.exams.filter(function(x){return x.id!==i});
+      touch();
+    }else armed=key;
+    render();
+  }
+});
+function addItem(c,list,inputId){
+  var inp=document.getElementById(inputId),v=(inp.value||'').trim();
+  if(!v){inp.focus();return}
+  if(list==='topics')c.topics.push({id:uid(),name:v,read:false,known:false});
+  else c.exams.push({id:uid(),name:v,done:false});
+  touch();focusId=inputId;render();
+}
+app.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  var f=e.target.dataset&&e.target.dataset.f;
+  if(f==='newTopic')addItem(course(e.target.dataset.c),'topics','newTopic');
+  else if(f==='newExam')addItem(course(e.target.dataset.c),'exams','newExam');
+  else if(e.target.classList.contains('txt'))e.target.blur();
+});
+app.addEventListener('change',function(e){
+  var t=e.target,f=t.dataset.f;if(!f)return;
+  var c=course(t.dataset.c);if(!c)return;
+  var it;
+  if(f==='read'||f==='known'){it=c.topics.find(function(x){return x.id===t.dataset.i});if(it){it[f]=t.checked;touch();render()}}
+  else if(f==='exdone'){it=c.exams.find(function(x){return x.id===t.dataset.i});if(it){it.done=t.checked;touch();render()}}
+  else if(f==='cdate'){c.date=t.value;touch();renderTop();if(!editMode)render()}
+});
+app.addEventListener('input',function(e){
+  var t=e.target,f=t.dataset.f;if(!f)return;
+  var c=course(t.dataset.c);if(!c)return;
+  if(f==='cname'){c.name=t.value;touch();renderTop()}
+  else if(f==='tname'){var a=c.topics.find(function(x){return x.id===t.dataset.i});if(a){a.name=t.value;touch()}}
+  else if(f==='exname'){var b=c.exams.find(function(x){return x.id===t.dataset.i});if(b){b.name=t.value;touch()}}
+});
+window.addEventListener('hashchange',function(){armed=null;window.scrollTo(0,0);render()});
+
+/* ---------- boot ---------- */
+var fbApp=initializeApp(firebaseConfig);
+var auth=getAuth(fbApp);
+var database=getDatabase(fbApp);
+var unsub=null;
+function showLogin(on){
+  document.getElementById('login').style.display=on?'grid':'none';
+  document.getElementById('topwrap').style.display=on?'none':'';
+  document.getElementById('app').style.display=on?'none':'';
+}
+document.getElementById('loginForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var err=document.getElementById('err');err.textContent='';
+  signInWithEmailAndPassword(auth,document.getElementById('em').value.trim(),document.getElementById('pw').value)
+    .then(function(){document.getElementById('pw').value=''})
+    .catch(function(ex){
+      var c=ex&&ex.code||'';
+      err.textContent=(c.indexOf('too-many')>=0)?'For mange forsøk. Vent litt og prøv igjen.':(c.indexOf('network')>=0)?'Ingen nettverkskontakt.':'Feil e-post eller passord.';
+    });
+});
+onAuthStateChanged(auth,function(user){
+  if(unsub){unsub();unsub=null}
+  ref=null;state={courses:[]};armed=null;editMode=false;dirty=false;
+  if(!user){showLogin(true);render();return}
+  showLogin(false);
+  ref=fbRef(database,'users/'+user.uid+'/courses');
+  var loadT=setTimeout(function(){setStatus('Får ikke kontakt med databasen')},10000);
+  unsub=onValue(ref,function(snap){
+    clearTimeout(loadT);
+    if(dirty||saving)return;
+    var v=snap.val(),next;
+    if(v==null)next=seed().courses;
+    else{try{next=JSON.parse(v)}catch(e){next=[]}}
+    if(!Array.isArray(next))next=[];
+    next.forEach(function(c){c.topics=c.topics||[];c.exams=c.exams||[]});
+    if(JSON.stringify(next)===JSON.stringify(state.courses)&&document.getElementById('app').innerHTML)return;
+    state.courses=next;
+    var a=document.activeElement;
+    if(a&&a.tagName==='INPUT'&&a.closest('#app'))renderTop();else render();
+  },function(err){setStatus('Ingen tilgang ('+(err&&err.code||'feil')+')')});
+});
+})();
+</script>
+</body>
+</html>
