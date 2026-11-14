@@ -138,6 +138,7 @@ function seed(){
   return {courses:[{
     id:uid(),name:'Tidsserieøkonometri (FIN3008)',color:COLORS[0],date:'',
     topics:['Stasjonaritet og autokorrelasjon','AR-, MA- og ARMA-modeller','Box-Jenkins og modellvalg','Enhetsrøtter og Dickey-Fuller','Kointegrasjon og feilkorreksjon','VAR og impulsresponser','ARCH/GARCH','Prognoser og evaluering'].map(function(n){return {id:uid(),name:n,read:false,known:false}}),
+    exercises:[],
     exams:['Eksamensoppgave 1','Eksamensoppgave 2'].map(function(n){return {id:uid(),name:n,done:false}})
   }]};
 }
@@ -164,12 +165,13 @@ async function flush(){
 /* ---------- helpers ---------- */
 function stats(c){
   var t=c.topics.length,r=c.topics.filter(function(x){return x.read}).length,k=c.topics.filter(function(x){return x.known}).length;
+  var o=(c.exercises||[]).length,od=(c.exercises||[]).filter(function(x){return x.done}).length;
   var e=c.exams.length,ed=c.exams.filter(function(x){return x.done}).length;
-  var total=2*t+e,done=r+k+ed;
-  return {t:t,r:r,k:k,e:e,ed:ed,total:total,done:done,pct:total?Math.round(100*done/total):0};
+  var total=2*t+o+e,done=r+k+od+ed;
+  return {t:t,r:r,k:k,o:o,od:od,e:e,ed:ed,total:total,done:done,pct:total?Math.round(100*done/total):0};
 }
 function overall(){
-  var a={t:0,r:0,k:0,e:0,ed:0,total:0,done:0};
+  var a={t:0,r:0,k:0,o:0,od:0,e:0,ed:0,total:0,done:0};
   state.courses.forEach(function(c){var s=stats(c);for(var k in a)a[k]+=s[k]});
   a.pct=a.total?Math.round(100*a.done/a.total):0;return a;
 }
@@ -185,7 +187,7 @@ function renderTop(){
   document.getElementById('top').innerHTML=
    '<div class="top-row"><div class="top-title">'+esc(title)+'</div><div class="top-pct" style="color:'+col+'">'+s.pct+'%</div></div>'+
    '<div class="bar" role="progressbar" aria-valuenow="'+s.pct+'" aria-valuemin="0" aria-valuemax="100"><span style="width:'+s.pct+'%;background:'+col+'"></span></div>'+
-   '<div class="chips"><span><i class="dot" style="background:'+col+'"></i>Gjennomgått <b>'+s.r+'/'+s.t+'</b></span><span><i class="dot" style="background:'+col+';opacity:.6"></i>Kan det <b>'+s.k+'/'+s.t+'</b></span><span><i class="dot" style="background:'+col+';opacity:.35"></i>Eksamensoppgaver <b>'+s.ed+'/'+s.e+'</b></span></div>';
+   '<div class="chips"><span><i class="dot" style="background:'+col+'"></i>Gjennomgått <b>'+s.r+'/'+s.t+'</b></span><span><i class="dot" style="background:'+col+';opacity:.6"></i>Kan det <b>'+s.k+'/'+s.t+'</b></span><span><i class="dot" style="background:'+col+';opacity:.45"></i>Øvinger <b>'+s.od+'/'+s.o+'</b></span><span><i class="dot" style="background:'+col+';opacity:.25"></i>Eksamensoppgaver <b>'+s.ed+'/'+s.e+'</b></span></div>';
 }
 function render(){
   renderTop();
@@ -205,7 +207,7 @@ function overview(){
         '<div class="erow"><span class="meta">Eksamen:</span><input class="field" type="date" value="'+esc(c.date)+'" data-f="cdate" data-c="'+c.id+'"></div></div>';
     }else{
       h+='<a class="card" href="#emne-'+c.id+'" style="--c:'+c.color+'"><div class="ring" style="--p:'+s.pct+';--c:'+c.color+'"><i>'+s.pct+'%</i></div>'+
-        '<div><h3>'+esc(c.name)+'</h3><div class="meta">'+s.t+' temaer · '+s.e+' oppgaver</div>'+(d?'<div class="meta">'+d+'</div>':'')+'</div></a>';
+        '<div><h3>'+esc(c.name)+'</h3><div class="meta">'+s.t+' temaer · '+s.o+' øvinger · '+s.e+' oppgaver</div>'+(d?'<div class="meta">'+d+'</div>':'')+'</div></a>';
     }
   });
   h+='<button class="card add" data-act="addCourse">+ Nytt emne</button></div>';
@@ -227,6 +229,14 @@ function courseView(c){
       '<button class="x'+(armed===t.id?' armed':'')+'" data-act="delTopic" data-c="'+c.id+'" data-i="'+t.id+'" title="Slett">'+(armed===t.id?'?':'✕')+'</button></div>';
   });
   h+='<div class="addrow"><input type="text" id="newTopic" placeholder="Nytt tema … (Enter for å legge til)" data-f="newTopic" data-c="'+c.id+'"><button class="btn" data-act="addTopic" data-c="'+c.id+'">Legg til</button></div></section>';
+  h+='<section class="panel" '+st+'><h2>Øvinger <small>'+s.od+' av '+s.o+' gjort</small></h2>';
+  if(!c.exercises.length) h+='<div class="empty">Ingen øvinger ennå – legg til under.</div>';
+  c.exercises.forEach(function(x){
+    h+='<div class="row ex'+(x.done?' done':'')+'"><label class="chk"><input type="checkbox" data-f="exrdone" data-c="'+c.id+'" data-i="'+x.id+'"'+(x.done?' checked':'')+' aria-label="Gjort"></label>'+
+      '<input class="txt" type="text" value="'+esc(x.name)+'" data-f="exrname" data-c="'+c.id+'" data-i="'+x.id+'" aria-label="Øving">'+
+      '<button class="x'+(armed===x.id?' armed':'')+'" data-act="delExercise" data-c="'+c.id+'" data-i="'+x.id+'" title="Slett">'+(armed===x.id?'?':'✕')+'</button></div>';
+  });
+  h+='<div class="addrow"><input type="text" id="newExercise" placeholder="Ny øving, f.eks. «Øving 3» …" data-f="newExercise" data-c="'+c.id+'"><button class="btn" data-act="addExercise" data-c="'+c.id+'">Legg til</button></div></section>';
   h+='<section class="panel" '+st+'><h2>Eksamensoppgaver <small>'+s.ed+' av '+s.e+' løst</small></h2>';
   if(!c.exams.length) h+='<div class="empty">Ingen eksamensoppgaver ennå – legg til under.</div>';
   c.exams.forEach(function(x){
@@ -247,19 +257,21 @@ app.addEventListener('click',function(e){
   var wasArmed=armed;
   if(!b){ if(armed){armed=null;render()} return; }
   var act=b.dataset.act,c=b.dataset.c?course(b.dataset.c):null,i=b.dataset.i;
-  if(act!=='delCourse'&&act!=='delTopic'&&act!=='delExam') armed=null;
+  if(act!=='delCourse'&&act!=='delTopic'&&act!=='delExam'&&act!=='delExercise') armed=null;
   if(act==='logout'){signOut(auth);return}
   if(act==='toggleEdit'){editMode=!editMode;render();return}
-  if(act==='addCourse'){var n={id:uid(),name:'Nytt emne',color:COLORS[state.courses.length%COLORS.length],date:'',topics:[],exams:[]};state.courses.push(n);editMode=true;touch();focusId=null;render();return}
+  if(act==='addCourse'){var n={id:uid(),name:'Nytt emne',color:COLORS[state.courses.length%COLORS.length],date:'',topics:[],exercises:[],exams:[]};state.courses.push(n);editMode=true;touch();focusId=null;render();return}
   if(act==='color'&&c){c.color=nextColor(c.color);touch();render();return}
   if(act==='addTopic'&&c){addItem(c,'topics','newTopic');return}
   if(act==='addExam'&&c){addItem(c,'exams','newExam');return}
-  if(act==='delCourse'||act==='delTopic'||act==='delExam'){
+  if(act==='addExercise'&&c){addItem(c,'exercises','newExercise');return}
+  if(act==='delCourse'||act==='delTopic'||act==='delExam'||act==='delExercise'){
     var key=act==='delCourse'?c.id:i;
     if(wasArmed===key){
       armed=null;
       if(act==='delCourse') state.courses=state.courses.filter(function(x){return x.id!==c.id});
       else if(act==='delTopic') c.topics=c.topics.filter(function(x){return x.id!==i});
+      else if(act==='delExercise') c.exercises=c.exercises.filter(function(x){return x.id!==i});
       else c.exams=c.exams.filter(function(x){return x.id!==i});
       touch();
     }else armed=key;
@@ -270,6 +282,7 @@ function addItem(c,list,inputId){
   var inp=document.getElementById(inputId),v=(inp.value||'').trim();
   if(!v){inp.focus();return}
   if(list==='topics')c.topics.push({id:uid(),name:v,read:false,known:false});
+  else if(list==='exercises')c.exercises.push({id:uid(),name:v,done:false});
   else c.exams.push({id:uid(),name:v,done:false});
   touch();focusId=inputId;render();
 }
@@ -278,6 +291,7 @@ app.addEventListener('keydown',function(e){
   var f=e.target.dataset&&e.target.dataset.f;
   if(f==='newTopic')addItem(course(e.target.dataset.c),'topics','newTopic');
   else if(f==='newExam')addItem(course(e.target.dataset.c),'exams','newExam');
+  else if(f==='newExercise')addItem(course(e.target.dataset.c),'exercises','newExercise');
   else if(e.target.classList.contains('txt'))e.target.blur();
 });
 app.addEventListener('change',function(e){
@@ -285,6 +299,7 @@ app.addEventListener('change',function(e){
   var c=course(t.dataset.c);if(!c)return;
   var it;
   if(f==='read'||f==='known'){it=c.topics.find(function(x){return x.id===t.dataset.i});if(it){it[f]=t.checked;touch();render()}}
+  else if(f==='exrdone'){it=c.exercises.find(function(x){return x.id===t.dataset.i});if(it){it.done=t.checked;touch();render()}}
   else if(f==='exdone'){it=c.exams.find(function(x){return x.id===t.dataset.i});if(it){it.done=t.checked;touch();render()}}
   else if(f==='cdate'){c.date=t.value;touch();renderTop();if(!editMode)render()}
 });
@@ -293,6 +308,7 @@ app.addEventListener('input',function(e){
   var c=course(t.dataset.c);if(!c)return;
   if(f==='cname'){c.name=t.value;touch();renderTop()}
   else if(f==='tname'){var a=c.topics.find(function(x){return x.id===t.dataset.i});if(a){a.name=t.value;touch()}}
+  else if(f==='exrname'){var d=c.exercises.find(function(x){return x.id===t.dataset.i});if(d){d.name=t.value;touch()}}
   else if(f==='exname'){var b=c.exams.find(function(x){return x.id===t.dataset.i});if(b){b.name=t.value;touch()}}
 });
 window.addEventListener('hashchange',function(){armed=null;window.scrollTo(0,0);render()});
@@ -331,7 +347,7 @@ onAuthStateChanged(auth,function(user){
     if(v==null)next=seed().courses;
     else{try{next=JSON.parse(v)}catch(e){next=[]}}
     if(!Array.isArray(next))next=[];
-    next.forEach(function(c){c.topics=c.topics||[];c.exams=c.exams||[]});
+    next.forEach(function(c){c.topics=c.topics||[];c.exercises=c.exercises||[];c.exams=c.exams||[]});
     if(JSON.stringify(next)===JSON.stringify(state.courses)&&document.getElementById('app').innerHTML)return;
     state.courses=next;
     var a=document.activeElement;
