@@ -17,7 +17,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none !important}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
-button,textarea{font:inherit;color:inherit}
+button,textarea,input{font:inherit;color:inherit}
 button{cursor:pointer}
 
 /* ============ Toppfelt med fremdrift ============ */
@@ -33,7 +33,7 @@ main{max-width:760px;margin:0 auto;padding:18px 20px 80px}
 .back-link{color:var(--accent);text-decoration:none;font-size:14px;display:inline-block;margin-bottom:12px}
 .back-link:hover{text-decoration:underline}
 
-/* ============ Knapper og faner ============ */
+/* ============ Knapper, faner, paneler ============ */
 .btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px;box-shadow:var(--shadow)}
 .btn:hover{border-color:var(--accent)}
 .btn:disabled{opacity:.5;cursor:default}
@@ -49,8 +49,17 @@ main{max-width:760px;margin:0 auto;padding:18px 20px 80px}
 .muted{color:var(--muted);font-size:14px}
 .center{text-align:center}
 
+/* ============ Temaer: chips og overskrifter ============ */
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:5px 12px;font-size:13.5px;color:var(--muted)}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.topic-row{text-align:center;margin-bottom:10px}
+.topic-chip{display:inline-block;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);border-radius:99px;padding:3px 12px;font-size:13px;font-weight:600}
+.topic-head{margin:18px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.topic-head:first-child{margin-top:0}
+
 /* ============ Pugg: oppsett ============ */
-.options{display:grid;gap:10px;margin:14px 0 18px}
+.options{display:grid;gap:10px;margin:14px 0 18px;justify-items:center}
 .options label{display:flex;gap:10px;align-items:center;cursor:pointer}
 .options input{width:18px;height:18px;accent-color:var(--accent)}
 .big-stat{font-size:34px;font-weight:800;margin:4px 0}
@@ -72,26 +81,49 @@ main{max-width:760px;margin:0 auto;padding:18px 20px 80px}
 .answers .btn{padding:12px;font-weight:700}
 .hint{text-align:center;color:var(--muted);font-size:12.5px;margin-top:12px}
 
+/* ============ Oversikt ============ */
+.seg{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.seg-btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 13px;font-size:14px}
+.seg-btn.active{border-color:var(--accent);color:var(--accent);font-weight:700}
+.ov-row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line)}
+.ov-q{font-weight:600;white-space:pre-wrap}
+.ov-a{color:var(--muted);font-size:14px;white-space:pre-wrap}
+.ov-btn{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:4px 10px;font-size:12.5px;color:var(--muted)}
+.ov-btn:hover{border-color:var(--accent);color:var(--accent)}
+.export-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
 /* ============ Rediger ============ */
-textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 11px;resize:vertical;min-height:62px}
-textarea:focus{outline:none;border-color:var(--accent)}
+textarea,.field{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 11px}
+textarea{resize:vertical;min-height:62px}
+textarea:focus,.field:focus{outline:none;border-color:var(--accent)}
 .add-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.add-grid label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+.add-grid label,.topic-field label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+.topic-field{margin-bottom:10px}
 details{margin-top:14px}
 summary{cursor:pointer;color:var(--accent);font-size:14px}
 details textarea{margin-top:10px;min-height:120px}
-.item{display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
-.item textarea{min-height:48px}
-.item label{display:flex;gap:6px;align-items:center;font-size:13px;padding-top:10px;color:var(--muted)}
-.item input[type=checkbox]{width:18px;height:18px;accent-color:var(--ok)}
-.x{background:none;border:0;color:var(--muted);border-radius:8px;padding:8px 10px;margin-top:2px}
+.item{padding:10px 0;border-top:1px solid var(--line)}
+.item-text{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.item-text textarea{min-height:48px}
+.item-meta{display:flex;gap:10px;align-items:center;margin-top:6px}
+.item-meta .field{flex:1;padding:6px 10px;font-size:14px}
+.item-meta label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.item-meta input[type=checkbox]{width:18px;height:18px;accent-color:var(--ok)}
+.x{background:none;border:0;color:var(--muted);border-radius:8px;padding:6px 10px}
 .x:hover{color:var(--danger)}
 .x.armed{background:var(--danger);color:#fff}
 .status{position:fixed;right:14px;bottom:12px;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px 10px;opacity:0;transition:opacity .2s}
 .status.show{opacity:1}
 @media (max-width:560px){
-  .add-grid{grid-template-columns:1fr}
-  .item{grid-template-columns:1fr 1fr;}
+  .add-grid,.item-text{grid-template-columns:1fr}
+}
+
+/* ============ Utskrift: bare teksten fra #printArea ============ */
+#printArea{display:none}
+@media print{
+  .top,main,.status{display:none !important}
+  body{background:#fff;color:#000}
+  #printArea{display:block;white-space:pre-wrap;font:13pt/1.5 Georgia,serif;margin:0}
 }
 </style>
 </head>
@@ -113,16 +145,24 @@ details textarea{margin-top:10px;min-height:120px}
 
   <div class="tabs">
     <button class="tab active" data-tab="study">Pugg</button>
+    <button class="tab" data-tab="overview">Oversikt</button>
     <button class="tab" data-tab="edit">Rediger kort</button>
   </div>
 
   <!-- Fane 1: Pugg -->
   <section id="studyView"></section>
 
-  <!-- Fane 2: Rediger -->
+  <!-- Fane 2: Oversikt over kort jeg kan / ikke kan -->
+  <section id="overviewView" hidden></section>
+
+  <!-- Fane 3: Rediger -->
   <section id="editView" hidden>
     <div class="panel">
       <h2>Nytt kort</h2>
+      <div class="topic-field">
+        <label for="newTopic">Tema (valgfritt, beholdes mellom kortene)</label>
+        <input class="field" id="newTopic" list="topicList" placeholder="f.eks. Enhetsrøtter">
+      </div>
       <div class="add-grid">
         <div><label for="newFront">Forside (spørsmål)</label><textarea id="newFront"></textarea></div>
         <div><label for="newBack">Bakside (svar)</label><textarea id="newBack"></textarea></div>
@@ -132,8 +172,10 @@ details textarea{margin-top:10px;min-height:120px}
 
       <details>
         <summary>Legg til mange kort på én gang</summary>
-        <p class="muted">Ett kort per linje, med spørsmål og svar skilt av semikolon (;) eller tab.</p>
-        <textarea id="bulkText" placeholder="Hva er stasjonaritet ; En prosess med konstant forventning og varians&#10;Hva tester ADF-testen ; Om en tidsserie har enhetsrot"></textarea>
+        <p class="muted">Ett kort per linje: <b>spørsmål ; svar</b> (semikolon eller tab).
+          En linje som starter med <b>#</b> setter tema for kortene under, f.eks. <b># Enhetsrøtter</b>.
+          Uten # brukes temaet du har skrevet i feltet over.</p>
+        <textarea id="bulkText" placeholder="# Stasjonaritet&#10;Hva er stasjonaritet ; En prosess med konstant forventning og varians&#10;# Enhetsrøtter&#10;Hva tester ADF-testen ; Om en tidsserie har enhetsrot"></textarea>
         <button class="btn" id="bulkAddBtn" style="margin-top:8px">Legg til alle</button>
       </details>
     </div>
@@ -144,7 +186,10 @@ details textarea{margin-top:10px;min-height:120px}
     </div>
   </section>
 </main>
+
+<datalist id="topicList"></datalist>
 <div class="status" id="status"></div>
+<pre id="printArea"></pre>
 
 <script type="module">
 /* ==========================================================================
@@ -175,11 +220,17 @@ const db = getDatabase(firebaseApp);
 const courseId = new URLSearchParams(location.search).get("emne");
 if (!courseId) location.replace("index.html");
 
-let cardsRef = null;          // Firebase-stien til kortene i dette emnet
-let cards = [];               // [{ id, front, back, known, created }]
-let session = null;           // null = oppsettskjerm. Ellers { deck, index, ok, missed }
-let armedDeleteId = null;     // kort som venter på bekreftelse av sletting
-const options = { includeKnown: false, shuffle: true };
+let cardsRef = null;              // Firebase-stien til kortene i dette emnet
+let cards = [];                   // [{ id, front, back, topic, known, created }]
+let courseName = "Flashcards";
+let session = null;               // null = oppsettskjerm. Ellers { deck, index, ok, missed }
+let armedDeleteId = null;         // kort som venter på bekreftelse av sletting
+let overviewFilter = "unknown";   // "unknown" | "known" | "all"
+const options = {
+  includeKnown: false,            // ta med kort jeg allerede kan?
+  shuffle: true,                  // stokk rekkefølgen?
+  topics: new Set()               // valgte temaer (tom = alle)
+};
 
 const $ = (id) => document.getElementById(id);
 
@@ -211,6 +262,25 @@ async function save(promise) {
   try { await promise; } catch (err) { showStatus("Kunne ikke lagre: " + (err.code || "feil")); }
 }
 
+/* ---------- Temaer ---------- */
+const topicLabel = (topic) => topic || "Uten tema";
+
+// Grupper kort etter tema. «Uten tema» først, resten alfabetisk.
+function groupByTopic(list) {
+  const groups = new Map();
+  list.forEach((card) => {
+    if (!groups.has(card.topic)) groups.set(card.topic, []);
+    groups.get(card.topic).push(card);
+  });
+  return [...groups.entries()].sort(([a], [b]) =>
+    a === "" ? -1 : b === "" ? 1 : a.localeCompare(b, "nb"));
+}
+
+const allTopics = () => [...new Set(cards.map((c) => c.topic))]
+  .sort((a, b) => a === "" ? -1 : b === "" ? 1 : a.localeCompare(b, "nb"));
+
+const matchesTopicFilter = (card) => options.topics.size === 0 || options.topics.has(card.topic);
+
 /* ==========================================================================
    3. Innlogging og lasting av data
    ========================================================================== */
@@ -224,7 +294,14 @@ onAuthStateChanged(auth, (user) => {
   onValue(cardsRef, (snapshot) => {
     const data = snapshot.val() || {};
     cards = Object.entries(data)
-      .map(([id, c]) => ({ id, front: c.front || "", back: c.back || "", known: !!c.known, created: c.created || 0 }))
+      .map(([id, c]) => ({
+        id,
+        front: c.front || "",
+        back: c.back || "",
+        topic: (c.topic || "").trim(),        // eldre kort har ikke tema -> ""
+        known: !!c.known,
+        created: c.created || 0
+      }))
       .sort((a, b) => a.created - b.created);
     $("app").hidden = false;
     renderAll();
@@ -236,7 +313,11 @@ async function loadCourseName(uid) {
   try {
     const snap = await get(ref(db, `users/${uid}/courses`));
     const course = JSON.parse(snap.val() || "[]").find((c) => c.id === courseId);
-    if (course) { $("courseName").textContent = course.name; document.title = "Flashcards – " + course.name; }
+    if (course) {
+      courseName = course.name;
+      $("courseName").textContent = course.name;
+      document.title = "Flashcards – " + course.name;
+    }
   } catch (err) { /* navnet er bare pynt, så vi ignorerer feil */ }
 }
 
@@ -245,7 +326,9 @@ async function loadCourseName(uid) {
    ========================================================================== */
 function renderAll() {
   renderProgress();
+  renderTopicSuggestions();
   if (!session) renderStudy();      // ikke tegn om kortet midt i en pugging
+  renderOverview();
   renderCardList();
 }
 
@@ -256,6 +339,12 @@ function renderProgress() {
   $("knownBar").style.width = total ? (100 * known / total) + "%" : "0%";
 }
 
+// Forslag i tema-feltene (datalist)
+function renderTopicSuggestions() {
+  $("topicList").innerHTML = allTopics().filter(Boolean)
+    .map((t) => `<option value="${escapeHtml(t)}"></option>`).join("");
+}
+
 /* ---------- Pugg-fanen ---------- */
 function renderStudy() {
   const box = $("studyView");
@@ -264,24 +353,38 @@ function renderStudy() {
   if (!session) {
     const total = cards.length;
     const known = cards.filter((c) => c.known).length;
-    const deckSize = cards.filter((c) => options.includeKnown || !c.known).length;
+    const pool = cards.filter((c) => options.includeKnown || !c.known);
+    const deckSize = pool.filter(matchesTopicFilter).length;
 
     if (total === 0) {
       box.innerHTML = `<div class="panel center"><p>Du har ingen kort i dette emnet ennå.</p>
         <button class="btn primary" data-tab="edit">Lag det første kortet</button></div>`;
       return;
     }
+
+    // Tema-chips (vises bare hvis det finnes mer enn ett tema)
+    const topics = allTopics();
+    const chips = topics.length > 1 ? `
+      <div class="chips">
+        <button class="chip ${options.topics.size === 0 ? "active" : ""}" data-act="allTopics">Alle temaer</button>
+        ${topics.map((t) => `
+          <button class="chip ${options.topics.has(t) ? "active" : ""}" data-act="toggleTopic" data-topic="${escapeHtml(t)}">
+            ${escapeHtml(topicLabel(t))} (${pool.filter((c) => c.topic === t).length})
+          </button>`).join("")}
+      </div>` : "";
+
     box.innerHTML = `
       <div class="panel center">
         <div class="muted">Du kan</div>
         <div class="big-stat">${known} / ${total}</div>
         <div class="muted">kort</div>
-        <div class="options" style="justify-items:center">
+        ${chips}
+        <div class="options">
           <label><input type="checkbox" id="optKnown" ${options.includeKnown ? "checked" : ""}> Ta med kort jeg allerede kan</label>
           <label><input type="checkbox" id="optShuffle" ${options.shuffle ? "checked" : ""}> Stokk rekkefølgen</label>
         </div>
         ${deckSize === 0
-          ? `<p class="muted">Du kan alle kortene! Huk av for «Ta med kort jeg allerede kan» for å repetere.</p>`
+          ? `<p class="muted">Ingen kort å pugge med disse valgene. Velg flere temaer, eller huk av for «Ta med kort jeg allerede kan».</p>`
           : `<button class="btn primary" data-act="start">Start pugging (${deckSize} kort)</button>`}
         <div><button class="link-btn" data-act="resetKnown">Nullstill: marker alle som «kan ikke»</button></div>
       </div>`;
@@ -308,6 +411,7 @@ function renderStudy() {
   box.innerHTML = `
     <div class="muted center">Kort ${session.index + 1} av ${session.deck.length}</div>
     <div class="session-bar"><span style="width:${100 * session.index / session.deck.length}%"></span></div>
+    <div class="topic-row"><span class="topic-chip">${escapeHtml(topicLabel(card.topic))}</span></div>
     <div class="flip" id="flip" data-act="flip">
       <div class="flip-inner">
         <div class="face front"><small>Spørsmål</small>${escapeHtml(card.front)}</div>
@@ -321,6 +425,71 @@ function renderStudy() {
     <div class="hint">Mellomrom snur kortet · ← kunne ikke · → kunne</div>`;
 }
 
+/* ---------- Oversikt-fanen ---------- */
+function cardsForOverview() {
+  if (overviewFilter === "known") return cards.filter((c) => c.known);
+  if (overviewFilter === "unknown") return cards.filter((c) => !c.known);
+  return cards;
+}
+
+const filterTitle = () =>
+  ({ unknown: "Kort jeg ikke kan", known: "Kort jeg kan", all: "Alle kort" }[overviewFilter]);
+
+// Gjør om kort til tekst i samme format som «Legg til mange kort»:
+//   # Tema
+//   spørsmål ; svar
+function toExportText(list) {
+  // Linjeskift og semikolon i selve kortet ville ødelagt formatet, så vi fjerner dem
+  const oneLine = (text) => text.replace(/\s*\n\s*/g, " / ").replace(/;/g, ",").trim();
+  const blocks = groupByTopic(list).map(([topic, items]) => {
+    const lines = items.map((c) => `${oneLine(c.front)} ; ${oneLine(c.back)}`);
+    return (topic ? [`# ${topic}`, ...lines] : lines).join("\n");
+  });
+  return blocks.join("\n\n");
+}
+
+function renderOverview() {
+  const active = document.activeElement;
+  if (active && active.id === "exportText") return;     // ikke tegn om mens du markerer tekst
+
+  const unknownCount = cards.filter((c) => !c.known).length;
+  const knownCount = cards.length - unknownCount;
+  const list = cardsForOverview();
+  const segButton = (value, label) =>
+    `<button class="seg-btn ${overviewFilter === value ? "active" : ""}" data-act="setFilter" data-filter="${value}">${label}</button>`;
+
+  const rows = groupByTopic(list).map(([topic, items]) => `
+    <h3 class="topic-head">${escapeHtml(topicLabel(topic))} (${items.length})</h3>
+    ${items.map((c) => `
+      <div class="ov-row">
+        <div>
+          <div class="ov-q">${escapeHtml(c.front)}</div>
+          <div class="ov-a">${escapeHtml(c.back)}</div>
+        </div>
+        <button class="ov-btn" data-act="toggleKnown" data-id="${c.id}">
+          ${c.known ? "Marker som ikke kan" : "Marker som kan"}</button>
+      </div>`).join("")}`).join("");
+
+  $("overviewView").innerHTML = `
+    <div class="seg">
+      ${segButton("unknown", `Kan ikke (${unknownCount})`)}
+      ${segButton("known", `Kan (${knownCount})`)}
+      ${segButton("all", `Alle (${cards.length})`)}
+    </div>
+    <div class="panel">${rows || `<p class="muted">Ingen kort her.</p>`}</div>
+
+    <div class="panel">
+      <h2>Som tekst (spørsmål ; svar)</h2>
+      <p class="muted">Samme format som «Legg til mange kort». Linjer med # er temaer.
+        Kopier og bruk tekstene til å øve, eller lim dem inn under «Rediger kort» for å lage kortene på nytt.</p>
+      <textarea id="exportText" rows="8" readonly>${escapeHtml(toExportText(list))}</textarea>
+      <div class="export-actions">
+        <button class="btn primary" data-act="copyExport">Kopier</button>
+        <button class="btn" data-act="printExport">Skriv ut</button>
+      </div>
+    </div>`;
+}
+
 /* ---------- Rediger-fanen ---------- */
 function renderCardList(force = false) {
   const list = $("cardList");
@@ -330,14 +499,21 @@ function renderCardList(force = false) {
   $("listTitle").textContent = `Kortene dine (${cards.length})`;
   if (!cards.length) { list.innerHTML = `<p class="muted">Ingen kort ennå.</p>`; return; }
 
-  list.innerHTML = cards.map((c) => `
-    <div class="item" data-id="${c.id}">
-      <textarea data-field="front" aria-label="Forside">${escapeHtml(c.front)}</textarea>
-      <textarea data-field="back" aria-label="Bakside">${escapeHtml(c.back)}</textarea>
-      <label><input type="checkbox" data-field="known" ${c.known ? "checked" : ""}> Kan</label>
-      <button class="x ${armedDeleteId === c.id ? "armed" : ""}" data-act="delete" data-id="${c.id}">
-        ${armedDeleteId === c.id ? "Slett?" : "✕"}</button>
-    </div>`).join("");
+  list.innerHTML = groupByTopic(cards).map(([topic, items]) => `
+    <h3 class="topic-head">${escapeHtml(topicLabel(topic))} (${items.length})</h3>
+    ${items.map((c) => `
+      <div class="item" data-id="${c.id}">
+        <div class="item-text">
+          <textarea data-field="front" aria-label="Forside">${escapeHtml(c.front)}</textarea>
+          <textarea data-field="back" aria-label="Bakside">${escapeHtml(c.back)}</textarea>
+        </div>
+        <div class="item-meta">
+          <input class="field" type="text" list="topicList" data-field="topic" value="${escapeHtml(c.topic)}" placeholder="Tema (valgfritt)" aria-label="Tema">
+          <label><input type="checkbox" data-field="known" ${c.known ? "checked" : ""}> Kan</label>
+          <button class="x ${armedDeleteId === c.id ? "armed" : ""}" data-act="delete" data-id="${c.id}">
+            ${armedDeleteId === c.id ? "Slett?" : "✕"}</button>
+        </div>
+      </div>`).join("")}`).join("");
 }
 
 /* ==========================================================================
@@ -351,8 +527,10 @@ function startSession(ids) {
 }
 
 function buildDeck() {
-  const ids = cards.filter((c) => options.includeKnown || !c.known).map((c) => c.id);
-  return options.shuffle ? shuffle(ids) : ids;
+  const pool = cards.filter((c) => (options.includeKnown || !c.known) && matchesTopicFilter(c));
+  // Uten stokking: samlet etter tema, i den rekkefølgen kortene ble laget
+  const ordered = options.shuffle ? shuffle(pool) : groupByTopic(pool).flatMap(([, items]) => items);
+  return ordered.map((c) => c.id);
 }
 
 function flipCard() {
@@ -373,26 +551,33 @@ function answer(knewIt) {
 async function addCard() {
   const front = $("newFront").value.trim();
   const back = $("newBack").value.trim();
+  const topic = $("newTopic").value.trim();        // beholdes i feltet til neste kort
   if (!front || !back) { showStatus("Fyll ut både forside og bakside"); return; }
   $("newFront").value = "";
   $("newBack").value = "";
   $("newFront").focus();
-  await save(push(cardsRef, { front, back, known: false, created: Date.now() }));
+  await save(push(cardsRef, { front, back, topic, known: false, created: Date.now() }));
 }
 
 async function addManyCards() {
   const lines = $("bulkText").value.split("\n").map((l) => l.trim()).filter(Boolean);
+  let currentTopic = $("newTopic").value.trim();   // standardtema, kan overstyres av # linjer
   const updates = {};
   let count = 0;
+
   lines.forEach((line, i) => {
+    if (line.startsWith("#")) { currentTopic = line.slice(1).trim(); return; }   // ny tema-overskrift
+
     const sep = line.includes("\t") ? line.indexOf("\t") : line.indexOf(";");
     if (sep < 1) return;                                  // hopp over linjer uten skilletegn
     const front = line.slice(0, sep).trim();
     const back = line.slice(sep + 1).trim();
     if (!front || !back) return;
-    updates[push(cardsRef).key] = { front, back, known: false, created: Date.now() + i };
+
+    updates[push(cardsRef).key] = { front, back, topic: currentTopic, known: false, created: Date.now() + i };
     count++;
   });
+
   if (!count) { showStatus("Fant ingen gyldige linjer (bruk «spørsmål ; svar»)"); return; }
   $("bulkText").value = "";
   await save(update(cardsRef, updates));
@@ -412,9 +597,34 @@ function resetKnown() {
   save(update(cardsRef, updates));
 }
 
+function toggleTopicFilter(topic) {
+  if (options.topics.has(topic)) options.topics.delete(topic);
+  else options.topics.add(topic);
+  renderStudy();
+}
+
+/* ---------- Eksport: kopier og skriv ut ---------- */
+async function copyExport() {
+  const textarea = $("exportText");
+  try {
+    await navigator.clipboard.writeText(textarea.value);
+  } catch (err) {                       // eldre nettlesere: marker og kopier på gamlemåten
+    textarea.select();
+    document.execCommand("copy");
+  }
+  showStatus("Kopiert");
+}
+
+function printExport() {
+  const date = new Date().toLocaleDateString("nb-NO");
+  $("printArea").textContent = `${courseName} – ${filterTitle()} (${date})\n\n${$("exportText").value}`;
+  window.print();
+}
+
 function switchTab(name) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
   $("studyView").hidden = name !== "study";
+  $("overviewView").hidden = name !== "overview";
   $("editView").hidden = name !== "edit";
 }
 
@@ -442,6 +652,16 @@ document.addEventListener("click", (e) => {
     case "toSetup":       session = null; renderStudy(); break;
     case "resetKnown":    resetKnown(); break;
     case "delete":        deleteCard(actionEl.dataset.id); break;
+    case "allTopics":     options.topics.clear(); renderStudy(); break;
+    case "toggleTopic":   toggleTopicFilter(actionEl.dataset.topic); break;
+    case "setFilter":     overviewFilter = actionEl.dataset.filter; renderOverview(); break;
+    case "toggleKnown": {
+      const card = cards.find((c) => c.id === actionEl.dataset.id);
+      if (card) save(update(child(cardsRef, card.id), { known: !card.known }));
+      break;
+    }
+    case "copyExport":    copyExport(); break;
+    case "printExport":   printExport(); break;
   }
 });
 
@@ -450,20 +670,21 @@ document.addEventListener("change", (e) => {
   if (e.target.id === "optKnown")   { options.includeKnown = e.target.checked; renderStudy(); return; }
   if (e.target.id === "optShuffle") { options.shuffle = e.target.checked; return; }
 
-  // Endringer i kortlisten (forside, bakside, «Kan»)
+  // Endringer i kortlisten (forside, bakside, tema, «Kan»)
   const item = e.target.closest(".item");
   const field = e.target.dataset.field;
   if (!item || !field) return;
   const id = item.dataset.id;
+  const card = cards.find((c) => c.id === id);
+  if (!card) return;
 
   if (field === "known") {
     save(update(child(cardsRef, id), { known: e.target.checked }));
-  } else {
-    const value = e.target.value.trim();
-    const card = cards.find((c) => c.id === id);
-    if (!value) { e.target.value = card[field]; return; }        // ikke tillat tomme felt
-    if (value !== card[field]) save(update(child(cardsRef, id), { [field]: value }));
+    return;
   }
+  const value = e.target.value.trim();
+  if (field !== "topic" && !value) { e.target.value = card[field]; return; }   // forside/bakside kan ikke være tomme
+  if (value !== card[field]) save(update(child(cardsRef, id), { [field]: value }));
 });
 
 document.addEventListener("keydown", (e) => {
@@ -471,8 +692,8 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && (e.target.id === "newFront" || e.target.id === "newBack")) {
     addCard(); return;
   }
-  // Tastatursnarveier under pugging (ikke mens du skriver i et felt)
-  if (!session || e.target.matches("textarea, input")) return;
+  // Tastatursnarveier under pugging (ikke mens du skriver i et felt, og bare på Pugg-fanen)
+  if (!session || $("studyView").hidden || e.target.matches("textarea, input")) return;
   if (e.key === " ")          { e.preventDefault(); flipCard(); }
   if (e.key === "ArrowRight") { answer(true); }
   if (e.key === "ArrowLeft")  { answer(false); }
