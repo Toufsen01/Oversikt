@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards</title>
+<style>
+/* ============ Variabler (samme som i index.html) ============ */
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --ink:#1b1f2a; --muted:#6b7385; --line:#e3e6ef; --track:#e9ecf4;
+  --accent:#4f7cff; --ok:#12a594; --miss:#e5604d; --danger:#d9483b;
+  --shadow:0 1px 2px rgba(20,25,40,.06),0 4px 14px rgba(20,25,40,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#12141a;--card:#1b1e27;--ink:#eceff6;--muted:#9099ad;--line:#2b3040;--track:#2a2f3d;--shadow:0 1px 2px rgba(0,0,0,.4)}
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+button,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* ============ Toppfelt med fremdrift ============ */
+.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-inner{max-width:760px;margin:0 auto;padding:12px 20px}
+.top-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+.course-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.known-count{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:12px;border-radius:99px;background:var(--track);overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--ok);transition:width .4s ease}
+
+main{max-width:760px;margin:0 auto;padding:18px 20px 80px}
+.back-link{color:var(--accent);text-decoration:none;font-size:14px;display:inline-block;margin-bottom:12px}
+.back-link:hover{text-decoration:underline}
+
+/* ============ Knapper og faner ============ */
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px;box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.miss{background:var(--miss);border-color:var(--miss);color:#fff}
+.tabs{display:flex;gap:6px;margin-bottom:18px;background:var(--track);padding:4px;border-radius:12px}
+.tab{flex:1;border:0;background:transparent;padding:8px;border-radius:9px;font-weight:600;color:var(--muted)}
+.tab.active{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.panel h2{margin:0 0 10px;font-size:16px}
+.muted{color:var(--muted);font-size:14px}
+.center{text-align:center}
+
+/* ============ Pugg: oppsett ============ */
+.options{display:grid;gap:10px;margin:14px 0 18px}
+.options label{display:flex;gap:10px;align-items:center;cursor:pointer}
+.options input{width:18px;height:18px;accent-color:var(--accent)}
+.big-stat{font-size:34px;font-weight:800;margin:4px 0}
+.link-btn{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:13px;padding:0;margin-top:12px}
+
+/* ============ Pugg: selve kortet (snur ved klikk) ============ */
+.session-bar{height:6px;border-radius:99px;background:var(--track);overflow:hidden;margin:6px 0 14px}
+.session-bar>span{display:block;height:100%;background:var(--accent);transition:width .3s}
+.flip{perspective:900px;cursor:pointer;margin-bottom:16px}
+.flip-inner{position:relative;height:280px;transition:transform .5s;transform-style:preserve-3d}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;
+  text-align:center;font-size:20px;white-space:pre-wrap;overflow:auto}
+.face small{position:absolute;top:12px;left:16px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.face.back{transform:rotateY(180deg);border-color:var(--accent)}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answers .btn{padding:12px;font-weight:700}
+.hint{text-align:center;color:var(--muted);font-size:12.5px;margin-top:12px}
+
+/* ============ Rediger ============ */
+textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 11px;resize:vertical;min-height:62px}
+textarea:focus{outline:none;border-color:var(--accent)}
+.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.add-grid label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+details{margin-top:14px}
+summary{cursor:pointer;color:var(--accent);font-size:14px}
+details textarea{margin-top:10px;min-height:120px}
+.item{display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.item textarea{min-height:48px}
+.item label{display:flex;gap:6px;align-items:center;font-size:13px;padding-top:10px;color:var(--muted)}
+.item input[type=checkbox]{width:18px;height:18px;accent-color:var(--ok)}
+.x{background:none;border:0;color:var(--muted);border-radius:8px;padding:8px 10px;margin-top:2px}
+.x:hover{color:var(--danger)}
+.x.armed{background:var(--danger);color:#fff}
+.status{position:fixed;right:14px;bottom:12px;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px 10px;opacity:0;transition:opacity .2s}
+.status.show{opacity:1}
+@media (max-width:560px){
+  .add-grid{grid-template-columns:1fr}
+  .item{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+
+<body>
+<!-- ============ HTML-skjelett ============ -->
+<div class="top">
+  <div class="top-inner">
+    <div class="top-row">
+      <div class="course-name" id="courseName">Flashcards</div>
+      <div class="known-count" id="knownCount"></div>
+    </div>
+    <div class="bar"><span id="knownBar" style="width:0%"></span></div>
+  </div>
+</div>
+
+<main id="app" hidden>
+  <a class="back-link" id="backLink" href="index.html">← Tilbake til emnet</a>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="study">Pugg</button>
+    <button class="tab" data-tab="edit">Rediger kort</button>
+  </div>
+
+  <!-- Fane 1: Pugg -->
+  <section id="studyView"></section>
+
+  <!-- Fane 2: Rediger -->
+  <section id="editView" hidden>
+    <div class="panel">
+      <h2>Nytt kort</h2>
+      <div class="add-grid">
+        <div><label for="newFront">Forside (spørsmål)</label><textarea id="newFront"></textarea></div>
+        <div><label for="newBack">Bakside (svar)</label><textarea id="newBack"></textarea></div>
+      </div>
+      <button class="btn primary" id="addCardBtn">Legg til kort</button>
+      <span class="muted"> Tips: Ctrl+Enter legger til kortet.</span>
+
+      <details>
+        <summary>Legg til mange kort på én gang</summary>
+        <p class="muted">Ett kort per linje, med spørsmål og svar skilt av semikolon (;) eller tab.</p>
+        <textarea id="bulkText" placeholder="Hva er stasjonaritet ; En prosess med konstant forventning og varians&#10;Hva tester ADF-testen ; Om en tidsserie har enhetsrot"></textarea>
+        <button class="btn" id="bulkAddBtn" style="margin-top:8px">Legg til alle</button>
+      </details>
+    </div>
+
+    <div class="panel">
+      <h2 id="listTitle">Kortene dine</h2>
+      <div id="cardList"></div>
+    </div>
+  </section>
+</main>
+<div class="status" id="status"></div>
+
+<script type="module">
+/* ==========================================================================
+   1. Firebase-oppsett
+   ========================================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getDatabase, ref, child, get, push, update, remove, onValue }
+  from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBWZ3m4D5e5LiwndIFjYCG7o4kltad0WTQ",
+  authDomain: "eksamensoversikt.firebaseapp.com",
+  databaseURL: "https://eksamensoversikt-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "eksamensoversikt",
+  storageBucket: "eksamensoversikt.firebasestorage.app",
+  messagingSenderId: "897011022339",
+  appId: "1:897011022339:web:40f70e9a3099627a70ac36"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getDatabase(firebaseApp);
+
+/* ==========================================================================
+   2. Tilstand og små hjelpefunksjoner
+   ========================================================================== */
+const courseId = new URLSearchParams(location.search).get("emne");
+if (!courseId) location.replace("index.html");
+
+let cardsRef = null;          // Firebase-stien til kortene i dette emnet
+let cards = [];               // [{ id, front, back, known, created }]
+let session = null;           // null = oppsettskjerm. Ellers { deck, index, ok, missed }
+let armedDeleteId = null;     // kort som venter på bekreftelse av sletting
+const options = { includeKnown: false, shuffle: true };
+
+const $ = (id) => document.getElementById(id);
+
+// Gjør tekst trygg å sette inn i HTML
+const escapeHtml = (text) =>
+  String(text ?? "").replace(/[&<>"']/g, (ch) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+
+function shuffle(list) {
+  const copy = [...list];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+let statusTimer;
+function showStatus(text) {
+  const el = $("status");
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+// Kjør en Firebase-skriving og vis feilmelding hvis den mislykkes
+async function save(promise) {
+  try { await promise; } catch (err) { showStatus("Kunne ikke lagre: " + (err.code || "feil")); }
+}
+
+/* ==========================================================================
+   3. Innlogging og lasting av data
+   ========================================================================== */
+onAuthStateChanged(auth, (user) => {
+  if (!user) { location.replace("index.html"); return; }   // ikke innlogget -> til forsiden
+
+  $("backLink").href = "index.html#emne-" + courseId;
+  loadCourseName(user.uid);
+
+  cardsRef = ref(db, `users/${user.uid}/cards/${courseId}`);
+  onValue(cardsRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    cards = Object.entries(data)
+      .map(([id, c]) => ({ id, front: c.front || "", back: c.back || "", known: !!c.known, created: c.created || 0 }))
+      .sort((a, b) => a.created - b.created);
+    $("app").hidden = false;
+    renderAll();
+  }, (err) => showStatus("Ingen tilgang: " + (err.code || "feil")));
+});
+
+// Emnenavnet ligger i JSON-strengen som index.html lagrer
+async function loadCourseName(uid) {
+  try {
+    const snap = await get(ref(db, `users/${uid}/courses`));
+    const course = JSON.parse(snap.val() || "[]").find((c) => c.id === courseId);
+    if (course) { $("courseName").textContent = course.name; document.title = "Flashcards – " + course.name; }
+  } catch (err) { /* navnet er bare pynt, så vi ignorerer feil */ }
+}
+
+/* ==========================================================================
+   4. Tegning av siden
+   ========================================================================== */
+function renderAll() {
+  renderProgress();
+  if (!session) renderStudy();      // ikke tegn om kortet midt i en pugging
+  renderCardList();
+}
+
+function renderProgress() {
+  const total = cards.length;
+  const known = cards.filter((c) => c.known).length;
+  $("knownCount").textContent = total ? `Kan ${known}/${total}` : "Ingen kort ennå";
+  $("knownBar").style.width = total ? (100 * known / total) + "%" : "0%";
+}
+
+/* ---------- Pugg-fanen ---------- */
+function renderStudy() {
+  const box = $("studyView");
+
+  // (a) Ingen pugging i gang: oppsettskjerm
+  if (!session) {
+    const total = cards.length;
+    const known = cards.filter((c) => c.known).length;
+    const deckSize = cards.filter((c) => options.includeKnown || !c.known).length;
+
+    if (total === 0) {
+      box.innerHTML = `<div class="panel center"><p>Du har ingen kort i dette emnet ennå.</p>
+        <button class="btn primary" data-tab="edit">Lag det første kortet</button></div>`;
+      return;
+    }
+    box.innerHTML = `
+      <div class="panel center">
+        <div class="muted">Du kan</div>
+        <div class="big-stat">${known} / ${total}</div>
+        <div class="muted">kort</div>
+        <div class="options" style="justify-items:center">
+          <label><input type="checkbox" id="optKnown" ${options.includeKnown ? "checked" : ""}> Ta med kort jeg allerede kan</label>
+          <label><input type="checkbox" id="optShuffle" ${options.shuffle ? "checked" : ""}> Stokk rekkefølgen</label>
+        </div>
+        ${deckSize === 0
+          ? `<p class="muted">Du kan alle kortene! Huk av for «Ta med kort jeg allerede kan» for å repetere.</p>`
+          : `<button class="btn primary" data-act="start">Start pugging (${deckSize} kort)</button>`}
+        <div><button class="link-btn" data-act="resetKnown">Nullstill: marker alle som «kan ikke»</button></div>
+      </div>`;
+    return;
+  }
+
+  // (b) Ferdig med runden
+  if (session.index >= session.deck.length) {
+    const missedCount = session.missed.length;
+    box.innerHTML = `
+      <div class="panel center">
+        <div class="big-stat">${session.ok} / ${session.deck.length}</div>
+        <p>${missedCount === 0 ? "Du kunne alle! 🎉" : "kunne du i denne runden."}</p>
+        ${missedCount ? `<button class="btn primary" data-act="restartMissed">Pugg de ${missedCount} du bommet på</button>` : ""}
+        <button class="btn" data-act="toSetup">Tilbake til start</button>
+      </div>`;
+    return;
+  }
+
+  // (c) Viser et kort
+  const card = cards.find((c) => c.id === session.deck[session.index]);
+  if (!card) { session.index++; renderStudy(); return; }   // kortet ble slettet underveis
+
+  box.innerHTML = `
+    <div class="muted center">Kort ${session.index + 1} av ${session.deck.length}</div>
+    <div class="session-bar"><span style="width:${100 * session.index / session.deck.length}%"></span></div>
+    <div class="flip" id="flip" data-act="flip">
+      <div class="flip-inner">
+        <div class="face front"><small>Spørsmål</small>${escapeHtml(card.front)}</div>
+        <div class="face back"><small>Svar</small>${escapeHtml(card.back)}</div>
+      </div>
+    </div>
+    <div class="answers">
+      <button class="btn miss" data-act="miss">✗ Kunne ikke</button>
+      <button class="btn ok" data-act="hit">✓ Kunne</button>
+    </div>
+    <div class="hint">Mellomrom snur kortet · ← kunne ikke · → kunne</div>`;
+}
+
+/* ---------- Rediger-fanen ---------- */
+function renderCardList(force = false) {
+  const list = $("cardList");
+  // Ikke tegn listen på nytt mens du skriver i et felt der
+  if (!force && list.contains(document.activeElement)) return;
+
+  $("listTitle").textContent = `Kortene dine (${cards.length})`;
+  if (!cards.length) { list.innerHTML = `<p class="muted">Ingen kort ennå.</p>`; return; }
+
+  list.innerHTML = cards.map((c) => `
+    <div class="item" data-id="${c.id}">
+      <textarea data-field="front" aria-label="Forside">${escapeHtml(c.front)}</textarea>
+      <textarea data-field="back" aria-label="Bakside">${escapeHtml(c.back)}</textarea>
+      <label><input type="checkbox" data-field="known" ${c.known ? "checked" : ""}> Kan</label>
+      <button class="x ${armedDeleteId === c.id ? "armed" : ""}" data-act="delete" data-id="${c.id}">
+        ${armedDeleteId === c.id ? "Slett?" : "✕"}</button>
+    </div>`).join("");
+}
+
+/* ==========================================================================
+   5. Handlinger
+   ========================================================================== */
+
+/* ---------- Pugging ---------- */
+function startSession(ids) {
+  session = { deck: ids, index: 0, ok: 0, missed: [] };
+  renderStudy();
+}
+
+function buildDeck() {
+  const ids = cards.filter((c) => options.includeKnown || !c.known).map((c) => c.id);
+  return options.shuffle ? shuffle(ids) : ids;
+}
+
+function flipCard() {
+  const el = $("flip");
+  if (el) el.classList.toggle("flipped");
+}
+
+function answer(knewIt) {
+  if (!session || session.index >= session.deck.length) return;
+  const id = session.deck[session.index];
+  if (knewIt) session.ok++; else session.missed.push(id);
+  session.index++;
+  renderStudy();
+  save(update(child(cardsRef, id), { known: knewIt }));
+}
+
+/* ---------- Redigering ---------- */
+async function addCard() {
+  const front = $("newFront").value.trim();
+  const back = $("newBack").value.trim();
+  if (!front || !back) { showStatus("Fyll ut både forside og bakside"); return; }
+  $("newFront").value = "";
+  $("newBack").value = "";
+  $("newFront").focus();
+  await save(push(cardsRef, { front, back, known: false, created: Date.now() }));
+}
+
+async function addManyCards() {
+  const lines = $("bulkText").value.split("\n").map((l) => l.trim()).filter(Boolean);
+  const updates = {};
+  let count = 0;
+  lines.forEach((line, i) => {
+    const sep = line.includes("\t") ? line.indexOf("\t") : line.indexOf(";");
+    if (sep < 1) return;                                  // hopp over linjer uten skilletegn
+    const front = line.slice(0, sep).trim();
+    const back = line.slice(sep + 1).trim();
+    if (!front || !back) return;
+    updates[push(cardsRef).key] = { front, back, known: false, created: Date.now() + i };
+    count++;
+  });
+  if (!count) { showStatus("Fant ingen gyldige linjer (bruk «spørsmål ; svar»)"); return; }
+  $("bulkText").value = "";
+  await save(update(cardsRef, updates));
+  showStatus(`La til ${count} kort`);
+}
+
+function deleteCard(id) {
+  if (armedDeleteId !== id) { armedDeleteId = id; renderCardList(true); return; }   // første klikk: spør
+  armedDeleteId = null;
+  renderCardList(true);
+  save(remove(child(cardsRef, id)));                                                   // andre klikk: slett
+}
+
+function resetKnown() {
+  const updates = {};
+  cards.forEach((c) => { updates[`${c.id}/known`] = false; });
+  save(update(cardsRef, updates));
+}
+
+function switchTab(name) {
+  document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
+  $("studyView").hidden = name !== "study";
+  $("editView").hidden = name !== "edit";
+}
+
+/* ==========================================================================
+   6. Hendelser (én lytter per type, bruker data-act / data-tab)
+   ========================================================================== */
+document.addEventListener("click", (e) => {
+  const tabBtn = e.target.closest("[data-tab]");
+  if (tabBtn) { switchTab(tabBtn.dataset.tab); return; }
+
+  if (e.target.id === "addCardBtn") { addCard(); return; }
+  if (e.target.id === "bulkAddBtn") { addManyCards(); return; }
+
+  const actionEl = e.target.closest("[data-act]");
+  if (!actionEl) {
+    if (armedDeleteId) { armedDeleteId = null; renderCardList(true); }   // klikk et annet sted avbryter sletting
+    return;
+  }
+  switch (actionEl.dataset.act) {
+    case "start":         startSession(buildDeck()); break;
+    case "flip":          flipCard(); break;
+    case "hit":           answer(true); break;
+    case "miss":          answer(false); break;
+    case "restartMissed": startSession(shuffle(session.missed)); break;
+    case "toSetup":       session = null; renderStudy(); break;
+    case "resetKnown":    resetKnown(); break;
+    case "delete":        deleteCard(actionEl.dataset.id); break;
+  }
+});
+
+document.addEventListener("change", (e) => {
+  // Valg på oppsettskjermen
+  if (e.target.id === "optKnown")   { options.includeKnown = e.target.checked; renderStudy(); return; }
+  if (e.target.id === "optShuffle") { options.shuffle = e.target.checked; return; }
+
+  // Endringer i kortlisten (forside, bakside, «Kan»)
+  const item = e.target.closest(".item");
+  const field = e.target.dataset.field;
+  if (!item || !field) return;
+  const id = item.dataset.id;
+
+  if (field === "known") {
+    save(update(child(cardsRef, id), { known: e.target.checked }));
+  } else {
+    const value = e.target.value.trim();
+    const card = cards.find((c) => c.id === id);
+    if (!value) { e.target.value = card[field]; return; }        // ikke tillat tomme felt
+    if (value !== card[field]) save(update(child(cardsRef, id), { [field]: value }));
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  // Ctrl/Cmd+Enter i «nytt kort»-feltene
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && (e.target.id === "newFront" || e.target.id === "newBack")) {
+    addCard(); return;
+  }
+  // Tastatursnarveier under pugging (ikke mens du skriver i et felt)
+  if (!session || e.target.matches("textarea, input")) return;
+  if (e.key === " ")          { e.preventDefault(); flipCard(); }
+  if (e.key === "ArrowRight") { answer(true); }
+  if (e.key === "ArrowLeft")  { answer(false); }
+});
+</script>
+</body>
+</html>

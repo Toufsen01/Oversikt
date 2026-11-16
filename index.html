@@ -38,6 +38,7 @@ h1{font-size:24px;margin:0 0 4px}
 
 .btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 13px;font-size:14px;box-shadow:var(--shadow)}
 .btn:hover{border-color:var(--accent)}
+.btn{text-decoration:none;display:inline-block}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.on{border-color:var(--accent);color:var(--accent)}
 .link{background:none;border:0;color:var(--accent);padding:0;font-size:14px;text-decoration:none;display:inline-block;margin-bottom:12px}
@@ -218,7 +219,7 @@ function courseView(c){
   var s=stats(c),d=daysTxt(c.date),st='style="--c:'+c.color+'"';
   var h='<a class="link" href="#oversikt">← Alle emner</a>'+
    '<div class="head" '+st+'><input class="txt big" type="text" value="'+esc(c.name)+'" data-f="cname" data-c="'+c.id+'" aria-label="Emnenavn">'+
-   '<div class="erow"><span class="meta">'+esc(d)+'</span><input class="field" type="date" value="'+esc(c.date)+'" data-f="cdate" data-c="'+c.id+'" aria-label="Eksamensdato"></div></div>';
+   '<div class="erow"><a class="btn" href="flashcards.html?emne='+c.id+'">Flashcards</a><span class="meta">'+esc(d)+'</span><input class="field" type="date" value="'+esc(c.date)+'" data-f="cdate" data-c="'+c.id+'" aria-label="Eksamensdato"></div></div>';
   h+='<section class="panel" '+st+'><h2>Temaer <small>'+s.r+' gjennomgått · '+s.k+' kan</small></h2>'+
      '<div class="cols"><span>Gjennomgått</span><span>Tema</span><span>Kan det</span><span></span></div>';
   if(!c.topics.length) h+='<div class="empty">Ingen temaer ennå – legg til under.</div>';
